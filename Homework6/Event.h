@@ -14,9 +14,8 @@ class Event {
   string input;
 
  public:
-  Event();
-  Event(Model& m, double t, int dt, string tp);
-  Event(Model& m, double t, int dt, string tp, string i);
+  Event(Model* m, double t, int dt, string tp);
+  Event(Model* m, double t, int dt, string tp, string i);
   double getTime();
   int getDiscreteTime();
   string getType();
