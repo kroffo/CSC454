@@ -32,7 +32,7 @@ class NetworkModel : public Model {
   void removeTransitionOnQueue(Model* m);
   Model* getTransitioningModels(); // Return an array
   int numberOfCurrentEvents();
-  bool eventsDoNotContainModel(Event* events[], Model& m);
+  bool eventsDoNotContainModel(Event events[], Model* m, int numberOfEvents);
   bool validInputForModel(Model* m, string inputs []);
   
   
@@ -43,14 +43,13 @@ class NetworkModel : public Model {
   bool validInput(string inputs[]);
   bool addModel(Model* m);
   int getIndex(Model* m);
-  bool setInput(Model* m, int sourceIndices []);
+  bool setInput(Model* m, int sourceIndices [], int numberOfSources);
   bool addOutputModel(Model* m); 
   void externalTransition(string networkInputs[], double timeOfInput);
   void internalTransition();
   void confluentTransition(string networkInputs [], double timeOfInput);
   double timeAdvance();
   string output();
-  void printPqueue();
 };
 
 #endif

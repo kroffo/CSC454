@@ -5,6 +5,8 @@
 #include "Event.h"
 using namespace std;
 
+Event::Event() {}
+
 Event::Event(Model* m, double t, int dt, string tp) {
   this->model = m;
   this->time = t;
@@ -18,6 +20,10 @@ Event::Event(Model* m, double t, int dt, string tp, string i) {
   this->discreteTime = dt;
   this->type = tp;
   this->input = i;
+}
+
+Event::~Event() {
+  
 }
 
 double Event::getTime() {
