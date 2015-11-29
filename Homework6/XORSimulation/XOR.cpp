@@ -39,7 +39,6 @@ void XOR::confluentTransition(string inputs [], double timeOfInput) {
       value2 = stoi(inputs[0]);
       firstTaken = false;
     } else {
-    cout << label << " " << inputs[0] << endl;
       value1 = stoi(inputs[0]);
       firstTaken = true;
     }

@@ -256,10 +256,6 @@ void NetworkModel::internalTransition() {
         if (events[i].getModel() == event.getModel() && events[i].getType().compare("input") == 0) {
           int nInputs = events[i].getNumberOfInputs();
           string* inputsFromEvent = events[i].getInput();
-          string exInput[] = {"1", "0"};
-          string exName = "input";
-          Event* e = new Event(event.getModel(), 0, 0, exName, exInput, 2);
-          cout << "InputsFromEvent: " << e->getInput()[0] << endl;
           for (int j = 0; j < nInputs; j++) {
             inputFromEvents[count2++] = inputsFromEvent[j];
           }
@@ -269,11 +265,9 @@ void NetworkModel::internalTransition() {
         string input[count + count2];
         for (int i = 0; i < count; i++) {
           input[i] = inputFromModels[i];
-          cout << "modelinput : " << input[i] << endl;
         }
         for (int i = 0; i < count2; i++) {
           input[count + i] = inputFromEvents[i];
-          cout << "eventinput : " << input[count + i] << endl;
         }
         model->confluentTransition(input, time);
       } else {
