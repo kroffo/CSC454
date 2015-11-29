@@ -17,8 +17,8 @@ public class Main {
         inputs[5][0] = "d";
         inputs[5][1] = "1.0";
         inputs[6][0] = "d";
-        inputs[6][1] = "1.0";
+        inputs[6][1] = "8.0";
 
-        new Framework(new VendingMachine()).run(inputs);
+        new Framework(new VendingMachine()).run();
     }
 }

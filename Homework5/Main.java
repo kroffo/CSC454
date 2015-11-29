@@ -34,6 +34,7 @@ public class Main {
         inputList[0] = n.getIndex(press);
         n.setInput(drill,inputList);
         n.addOutputModel(drill);
+        //n.addOutputModel(press);
 
         new Framework(n).run(inputs, times);
     }

@@ -9,7 +9,7 @@ public class Press implements Model {
 
     public boolean validInput(String[] input) {
         for (int i = 0; i < input.length; i++) {
-            if (!input.equals("ball"))
+            if (!input[i].equals("ball"))
                 return false;
         }
         return true;

@@ -1,7 +1,7 @@
 public class XOR implements AtomicModel {
 
-    private int value1 = 0;
-    private int value2 = 0;
+    private int value1;
+    private int value2;
 
     public XOR(int v1, int v2) {
         value1 = v1;
