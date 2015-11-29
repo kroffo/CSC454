@@ -1,6 +1,5 @@
 #include <iostream>
 #include <queue>
-#include "TestModel.h"
 #include "Press.h"
 #include "Drill.h"
 #include "Event.h"
@@ -10,8 +9,8 @@ using namespace std;
 
 int main() {
   NetworkModel* nm = new NetworkModel(2,1);
-  Press* p = new Press();
-  Drill* d = new Drill();
+  Model* p = new Press();
+  Model* d = new Drill();
   nm->addModel(p);
   nm->addModel(d);
   

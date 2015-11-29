@@ -7,7 +7,6 @@
 #include "Model.h"
 #include "NetworkModel.h"
 #include "Event.h"
-#include "TestModel.h"
 using namespace std;
 
 //priority_queue<Event, vector<Event>, compareEvents> NetworkModel::priority_queue<Event, vector<Event>, compareEvents> pqueue;
@@ -254,7 +253,7 @@ void NetworkModel::internalTransition() {
       for (int i = 0; i < currentCount; i++) {
         if (events[i].getModel() == event.getModel() && events[i].getType().compare("input") == 0) {
           int nInputs = events[i].getNumberOfInputs();
-          string inputsFromEvent[nInputs];
+          string* inputsFromEvent = events[i].getInput();
           for (int j = 0; j < nInputs; j++) {
             inputFromEvents[count2++] = inputsFromEvent[j];
           }

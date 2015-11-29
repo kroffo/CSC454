@@ -21,6 +21,8 @@ Event::Event(Model* m, double t, int dt, string tp, string* i, int nInputs) {
   this->type = tp;
   this->input = i;
   this->numberOfInputs = nInputs;
+  cout << "inputs: " << i[0] << " and " << i[1] << " stored as : " << input[0] << " and " << input[1] << endl;
+  
 }
 
 Event::~Event() {
