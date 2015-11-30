@@ -3,18 +3,24 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         
-        String[][] inputs = new String[5][1];
-        double[] times = new double[5];
-        inputs[0][0] = "ball";
-        times[0] = 1;
+        String[][] inputs = new String[8][1];
+        double[] times = new double[8];
+        inputs[0][0] = "ball ball";
+        times[0] = 1.3;
         inputs[1][0] = "ball";
-        times[1] = 2;
+        times[1] = 2.3;
         inputs[2][0] = "ball";
-        times[2] = 3;
-        inputs[3][0] = "ball";
-        times[3] = 4;
+        times[2] = 3.4;
+        inputs[3][0] = "ball ball ball";
+        times[3] = 4.6;
         inputs[4][0] = "ball";
-        times[4] = 7;
+        times[4] = 6.5;
+        inputs[5][0] = "ball ball";
+        times[5] = 7.8;
+        inputs[6][0] = "ball";
+        times[6] = 25.9;
+        inputs[7][0] = "ball";
+        times[7] = 29.7;
 
         Press press = new Press();
         Drill drill = new Drill();
