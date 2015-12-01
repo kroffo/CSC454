@@ -24,7 +24,7 @@ Event::Event(Model* m, double t, int dt, string tp, string* i, int nInputs) {
 }
 
 Event::~Event() {
-  
+  //  delete []  input;
 }
 
 double Event::getTime() {

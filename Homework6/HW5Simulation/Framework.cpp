@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <sstream>
 #include "Model.h"
 #include "Framework.h"
 using namespace std;
@@ -25,7 +26,10 @@ void Framework::run(string **inputs, double times[], int numberOfInputs, int num
         untilTime = model->timeAdvance();
       } else if (waitTime < untilTime || untilTime < 0) {
         currentTime = waitTime;
-        string outString = to_string(currentTime) + " - Input: ";
+	ostringstream strs;
+	strs << currentTime;
+	string currentTimeString = strs.str();
+        string outString = currentTimeString + " - Input: ";
         for (int j = 0; j < numberOfInputsPerInput; j++) {
           outString.append(input[j] + " ");
         }
@@ -37,7 +41,10 @@ void Framework::run(string **inputs, double times[], int numberOfInputs, int num
         }
       } else {
         currentTime = waitTime;
-        string outString = to_string(currentTime);
+	ostringstream strs;
+	strs << currentTime;
+	string currentTimeString = strs.str();
+        string outString = currentTimeString;
         string output = model->output();
         if (output.compare("NULLSTRING") != 0) {
           outString.append(" - Output: " + output);

@@ -29,13 +29,13 @@ NetworkModel::NetworkModel(int numModels, int numInputs):Model() {
 
 NetworkModel::~NetworkModel() {
   delete pqueue;
-  delete models;
-  delete outputIndex;
-  delete numberOfInputsForModel;
-  // for (int i = 0; i < this->numberOfModels; i++) {
-  //   delete inputs[i];
-  // }
-  delete inputs;
+  delete [] models;
+  delete [] outputIndex;
+  delete [] numberOfInputsForModel;
+   for (int i = 0; i < this->numberOfModels; i++) {
+     delete [] inputs[i];
+   }
+  delete [] inputs;
 }
 
 bool NetworkModel::addModel(Model* m) {
@@ -167,8 +167,9 @@ void NetworkModel::externalTransition(string networkInputs [], double timeInput)
         istringstream buf(thisInput);
         istream_iterator<string> beg(buf), end;
         vector<string> tokens(beg,end);
-        for (auto& s: tokens) {
-          input[index++] = s;
+	int size = tokens.size();
+        for (int s = 0; s < size; s++) {
+          input[index++] = tokens[s];
         }
         inputFound = true;
       }
@@ -210,6 +211,7 @@ int NetworkModel::numberOfCurrentEvents() {
     pqueue->push(e);
     pqueue2->pop();
   }
+  delete pqueue2;
   return count;
 }
 
@@ -281,6 +283,7 @@ void NetworkModel::internalTransition() {
               Event* newEvent = new Event(models[i], time, event.getDiscreteTime() + 1, "input", outputHere, 1);
               pqueue->push(*newEvent);
               delete newEvent;
+	      delete [] outputHere;
             }
           }
         }

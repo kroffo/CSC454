@@ -22,6 +22,8 @@ int main() {
   
   nm->addOutputModel(d);
 
+  delete [] inputs;
+
   string **input;
   input = new string *[8];
   for (int i = 0; i < 8; i++) {
@@ -38,5 +40,15 @@ int main() {
 
   double times[] = {1.3, 2.3, 3.4, 4.6, 6.5, 7.8, 25.9, 29.7};
   Framework* framework = new Framework(nm);
-  framework->run(input, times, 8, 1);  
+  framework->run(input, times, 8, 1);
+  
+  for (int i = 0; i < 8; i++) {
+    delete [] input[i];
+  }
+  delete [] input;
+  //  delete [] times;
+  delete nm;
+  delete p;
+  delete d;
+  delete framework;
 }
