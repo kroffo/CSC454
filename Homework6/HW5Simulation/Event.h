@@ -11,17 +11,20 @@ class Event {
   double time;
   int discreteTime;
   string type;
-  string input;
+  string* input;
+  int numberOfInputs;
 
  public:
   Event();
-  Event(Model& m, double t, int dt, string tp);
-  Event(Model& m, double t, int dt, string tp, string i);
+  Event(Model* m, double t, int dt, string tp);
+  Event(Model* m, double t, int dt, string tp, string* i, int nInputs);
+  ~Event();
   double getTime();
   int getDiscreteTime();
   string getType();
-  string getInput();
+  string* getInput();
   Model* getModel();
+  int getNumberOfInputs();
 };
 
 #endif
