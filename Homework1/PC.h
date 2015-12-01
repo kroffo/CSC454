@@ -1,19 +1,27 @@
-#ifndef PC_included
-#define PC_included
+#include <iostream>
+#include <string>
 #include "Creature.h"
 #include "Room.h"
-using namespace std;
-
-class PC : public Creature {
-private:
-  int respect;
+#include "PC.h"
+using namespace std;  
   
-public:
-  PC(Room* r, string label);
-  string toString();
-  bool react(string action, Creature* c);
-  int getRespect();
-  void modifyRespect(int change);
+PC::PC(Room* r, string label):Creature(r, label){  
+  respect = 40;
 };
 
-#endif
+
+string PC::toString() {
+  return "PC";
+};
+
+int PC::getRespect() {
+  return respect;
+};
+
+void PC::modifyRespect(int change) {
+  respect = respect + change;
+};
+
+bool PC::react(string action, Creature* c) {
+  return true;
+}

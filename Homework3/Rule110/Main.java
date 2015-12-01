@@ -34,13 +34,9 @@ public class Main {
             rule110Model.addOutputModel(cells[i]);
         }
 
-        String[][] inputs = new String[100][2];
-        for (int i = 0; i < 100; i++) {
-            inputs[i][0] = "";
-            inputs[i][1] = "";
-        }
+        String[][] inputs = new String[100][0];
 
-        new Framework(rule110Model).run(new Scanner(System.in));
+        new Framework(rule110Model).run(inputs);
         
     }
 }

@@ -35,7 +35,16 @@ public class NetworkModel implements Model {
     }
 
     public boolean validInput(String[] input) {
-        return true;
+         for (int i = 0; i < models.length; i++) {
+             for (int j = 0; j < numberOfInputsForModel[i]; j++) {
+                 if (inputs[i][j] < 0) {
+                     String[] inputForModel = input[(inputs[i][j]*-1)-1].split(" ");
+                     if (!models[i].validInput(inputForModel))
+                         return false;
+                 }
+             }
+         }
+         return true;
     }
 
     public int getNumberOfInputs() {
@@ -58,7 +67,7 @@ public class NetworkModel implements Model {
         for (int i = 0; i < models.length; i++) {
             if (models[i] == m) {
                 return i;
-            }
+           }
         }
         return -1;
     }
@@ -105,13 +114,23 @@ public class NetworkModel implements Model {
     }
     
     public String output() {
+        Model[] currents = getTransitioningModels();
+        if (currents == null)
+            return null;
         String output = "";
         for (int i = 0; i < outputIndex.length; i++) {
             if (outputIndex[i]) {
-                output = output + models[i].output();
+                for (int j = 0; j < currents.length; j++) {
+                    if (currents[j] == models[i]) {
+                        output = output + " " +  models[i].output();
+                        break;
+                    }
+                }
             }
         }
-        return output;
+        if (output.length() > 0)
+            return output.trim();
+        return null;
     }
 
     // returns the time until the next scheduled event occurrs.
@@ -128,7 +147,7 @@ public class NetworkModel implements Model {
         Iterator<QueueElement> it = pqueue.iterator();
         while (it.hasNext()) {
             QueueElement e = it.next();
-            if (e.getModel() == m) {
+            if (e.getType().equals("internal") && e.getModel() == m) {
                 pqueue.remove(e);
                 break;
             }
@@ -146,14 +165,34 @@ public class NetworkModel implements Model {
             }
             input = input.trim();
             if (input.length() > 0) {
-                models[i].externalTransition(input.split(" "), timeOfInput);
-                removeTransitionOnQueue(models[i]);
-                double time = models[i].timeAdvance();
-                if (time < Integer.MAX_VALUE) {
-                    pqueue.add(new QueueElement(models[i], timeOfInput + time));
-                }
+                pqueue.add(new QueueElement(models[i], timeOfInput, 0, "input", input.split(" ")));
             }
         }
+    }
+
+    public Model[] getTransitioningModels() {
+        QueueElement e = pqueue.peek();
+        if (e != null) {
+            if (e.getType().equals("internal")) {
+                int count = 1;
+                Iterator<QueueElement> it = pqueue.iterator();
+                it.next();
+                while (it.hasNext()) {
+                    QueueElement c = it.next();
+                    if (e.compareTo(c) == 0)
+                        count++;
+                    else
+                        break;
+                }
+                Model[] models = new Model[count];
+                it = pqueue.iterator();
+                for (int i = 0; i < count; i++) {
+                    models[i] = it.next().getModel();
+                }
+                return models;
+            }
+        }
+        return null;
     }
 
     public QueueElement[] getCurrentEvents() {
@@ -161,7 +200,7 @@ public class NetworkModel implements Model {
         int count = 1;
         Iterator<QueueElement> it = pqueue.iterator();
         while (it.hasNext()) {
-            if (it.next().getTime() == e.getTime())
+            if (e.compareTo(it.next()) == 0)
                 count++;
             else
                 break;
@@ -187,46 +226,64 @@ public class NetworkModel implements Model {
             QueueElement event = events[k];
             double time = event.getTime();
             Model model = event.getModel();
-            String output = model.output();
-
-            String input = "";
-            for (int i = 0; i < events.length; i++) {
-                for (int j = 0; j < numberOfInputsForModel[getIndex(model)]; j++) {
-                    if (getIndex(events[i].getModel()) == inputs[getIndex(model)][j]) {
-                        input = input + " " + outputs[i];
+            
+            if (event.getType().equals("internal")) {
+                // Get input if any exists, and call the corresponding delta of the current model
+                String input = "";
+                for (int i = 0; i < events.length; i++) {
+                    for (int j = 0; j < numberOfInputsForModel[getIndex(model)]; j++) {
+                        if (getIndex(events[i].getModel()) == inputs[getIndex(model)][j]) {
+                            input = input + " " + outputs[i];
+                        }
                     }
                 }
-            }
-            input = input.trim();
-            if (input.length() > 1) {
-                if (isOutputModel(model))
-                    System.out.println(time + " - Output: " + model.output());
-                model.confluentTransition(input.split(" "), time);
-            } else {
-                if (isOutputModel(model))
-                    System.out.println(time + " - Output: " + model.output());
-                model.internalTransition();
-            }
+                for (int i = 0; i < events.length; i++) {
+                    if (events[i].getModel() == event.getModel() && events[i].getType().equals("input")) {
+                        String[] inputs = events[i].getInput();
+                        for (int j = 0; j < inputs.length; j++) {
+                            input = input + " " + inputs[j];
+                        }
+                    }
+                }
+                input = input.trim();
+                if (input.length() > 1) {
+                    model.confluentTransition(input.split(" "), time);
+                } else {
+                    model.internalTransition();
+                }
 
-            for (int i = 0; i < models.length; i++) {
-                if (eventsDoNotContainModel(events,models[i])) {
-                    for (int j = 0; j < numberOfInputsForModel[i]; j++) {
-                        if (inputs[i][j] == getIndex(model)) {
-                            models[i].externalTransition(outputs[k].split(" "), time);
-                            removeTransitionOnQueue(models[i]);
-                            double time2 = models[i].timeAdvance();
-                            if (time2 < Integer.MAX_VALUE) {
-                                pqueue.add(new QueueElement(models[i], time + time2));
+                // Add the input event to the queue for the next discrete time
+                for (int i = 0; i < models.length; i++) {
+                    if (eventsDoNotContainModel(events,models[i])) {
+                        for (int j = 0; j < numberOfInputsForModel[i]; j++) {
+                            if (inputs[i][j] == getIndex(model)) {
+                                pqueue.add(new QueueElement(models[i], time, event.getDiscreteTime() + 1, "input", outputs[k].split(" "))); //Since this is after an internal transition, the discrete time is currently 0
                             }
                         }
                     }
                 }
-            }
-
-            removeTransitionOnQueue(model);
-            double time3 = model.timeAdvance();
-            if (time3 < Integer.MAX_VALUE) {
-                pqueue.add(new QueueElement(model, time + time3));
+            
+                // Add the new transition event to the queue
+                removeTransitionOnQueue(model);
+                double time3 = model.timeAdvance();
+                if (time3 < Integer.MAX_VALUE) {
+                    pqueue.add(new QueueElement(model, time + time3, 0, "internal"));
+                }
+            } else if (event.getType().equals("input")) {
+                boolean transitioning = false;
+                for (int i = 0; i < events.length; i++) {
+                    if (events[i].getModel() == event.getModel() && events[i].getType().equals("internal")) {
+                        transitioning = true;
+                    }
+                }
+                if (!transitioning) {
+                    String[] input = event.getInput();
+                    model.externalTransition(input, time);
+                    double time2 = model.timeAdvance();
+                    if (time2 < Integer.MAX_VALUE) {
+                        pqueue.add(new QueueElement(model, time + time2, 0, "internal"));
+                    }
+                }
             }
         }
     }

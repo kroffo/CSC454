@@ -11,7 +11,6 @@ public class Framework {
     
     public void run(String[][] inputs, double[] times) {
          double untilTime = model.timeAdvance(), currentTime = 0;
-         int uptick = 0;
          for (int i = 0; i < inputs.length; i++) {
              if (inputs.length == times.length) {
                 String[] input = inputs[i];
@@ -21,25 +20,19 @@ public class Framework {
                         while (waitTime > 0) {
                             //System.out.println(untilTime + " " + waitTime);
                             if (untilTime < waitTime && untilTime > 0)  {
-                                try {
-                                    Thread.currentThread().sleep((long)((untilTime - currentTime)*1000));
+                                //try {
+                                //Thread.currentThread().sleep((long)((untilTime - currentTime)*1000));
                                     currentTime = untilTime;
-                                    //if (untilTime == 0) {
-                                    //    uptick++;
-                                    //} else {
-                                    //    uptick = 0;
-                                    //}
-                                    //String currentTimeString = "(" + currentTime + "," + uptick + ") ";                 
-                                    //System.out.println(currentTimeString + model.output());
-                                    //System.out.println("Internal Transition");
+                                    String output = model.output();
+                                    if (output != null) 
+                                        System.out.println(currentTime + " - Output: " + output);
                                     model.internalTransition();
                                     untilTime = model.timeAdvance();
-                                } catch (InterruptedException e) {}
+                                    //} catch (InterruptedException e) {}
                             } else if (waitTime < untilTime || untilTime < 0) {
-                                try {
-                                    Thread.currentThread().sleep((long)((waitTime - currentTime)*1000));
+                                //try {
+                                //Thread.currentThread().sleep((long)((waitTime - currentTime)*1000));
                                     currentTime = waitTime;
-                                    // uptick = 0;
                                     String outString = currentTime + " - Input: ";
                                     for (int j = 0; j < input.length; j++) {
                                         outString = outString + input[j] + " ";
@@ -50,13 +43,16 @@ public class Framework {
                                     if (untilTime < 0) {
                                         untilTime = model.timeAdvance();
                                     }
-                                } catch (InterruptedException e) {}
+                                    //} catch (InterruptedException e) {}
                             } else { // They must be equal!
-                                try {
-                                    Thread.currentThread().sleep((long)((waitTime - currentTime)*1000));
+                                //try {
+                                //Thread.currentThread().sleep((long)((waitTime - currentTime)*1000));
                                     currentTime = waitTime;
-                                    // uptick = 0;
-                                    String outString = currentTime + " - Input: ";
+                                    String outString = currentTime + "";
+                                    String output = model.output();
+                                    if (output != null) 
+                                        outString = outString + " - Output: " + output;
+                                    outString = outString + " - Input: ";
                                     for (int j = 0; j < input.length; j++) {
                                         outString = outString + input[j] + " ";
                                     }
@@ -64,7 +60,7 @@ public class Framework {
                                     model.confluentTransition(input, currentTime);
                                     waitTime = -1;
                                     untilTime = model.timeAdvance();
-                                } catch (InterruptedException e) {}
+                                    //} catch (InterruptedException e) {}
                             }
                         }
                     } else {
@@ -79,62 +75,70 @@ public class Framework {
          }
     }
 
-    // public String[] getInput(double waitTime) { // After spending 6 hours on handling this via multithreading, I found this on google.
-    //     BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-    //     double startTime = System.currentTimeMillis(), elapsed = 0;
-    //     System.out.println("Enter input:");
-    //     try {
-    //         while ((System.currentTimeMillis() - startTime) < waitTime * 1000
-    //                && !in.ready()) {
-    //         }
-    //         if (in.ready()) {
-    //             elapsed = System.currentTimeMillis() - startTime;
-    //             String[] output = {in.readLine().trim(), elapsed/1000 + ""};
-    //             return output;
-    //         } else {
-    //             String[] output = {"", "No input"};
-    //             return output;
-    //         }
-    //     } catch (IOException e) {
-    //         System.out.println(e);
-    //     }
-    //     return null;
-    // }
+    public String[] getInput(double waitTime) { // After spending 6 hours on handling this via multithreading, I found this on google.
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+        double startTime = System.currentTimeMillis(), elapsed = 0;
+        System.out.println("Enter input:");
+        try {
+            if (waitTime > 0) {
+                while ((System.currentTimeMillis() - startTime) < waitTime * 1000 && !in.ready()) {}
+            } else {
+                while (!in.ready()) {}
+            }
+            if (in.ready()) {
+                elapsed = System.currentTimeMillis() - startTime;
+                String[] output = {in.readLine().trim(), elapsed/1000 + ""};
+                return output;
+            } else {
+                String[] output = {"", "No input"};
+                return output;
+            }
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+        return null;
+    }
 
-    // public void run() {
-    //     double startTime = System.currentTimeMillis(), currentTime = 0;
-    //     while (true) {
-    //         double until = model.timeAdvance();
-    //         int uptick = 0;
-    //         String[] inputTry = getInput(until);
-    //         if (inputTry != null) {
-    //                 if (inputTry[1].equals("No input")) {
-    //                     if (until == 0) {
-    //                         uptick++;                            
-    //                     } else {
-    //                         uptick = 0;
-    //                         currentTime = System.currentTimeMillis() - startTime;
-    //                     }                                        
-    //                     String currentTimeString = "(" + currentTime/1000 + "," + uptick + ") ";
-    //                     System.out.println(currentTimeString + model.output());
-    //                     model.internalTransition();
-    //                 } else if (model.validInput(inputTry[0])) {
-    //                     if (Double.parseDouble(inputTry[1]) >= until) { // input was given a moment before time ran out, we count this as the same time.
-    //                         currentTime = System.currentTimeMillis() - startTime;
-    //                         System.out.println("(" + currentTime/1000 + "," + uptick + ") " + model.output());
-    //                         model.confluentTransition(inputTry[0]);
-    //                     } else {
-    //                         model.externalTransition(inputTry[0]);
-    //                     }
-    //                 } else {
-    //                     System.out.println("Input invalid -- try again");
-    //                 }            
-    //         } else {
-    //             System.out.println("Fatal error."); // I don't know what would ever cause this to happen, but just in case I'll put it in here.
-    //             System.exit(0);
-    //         }
-    //     }
-    // }
+    public void run() {
+        double startTime = System.currentTimeMillis(), currentTime = 0;
+        while (true) {
+            double until = model.timeAdvance();
+            String[] inputTry = getInput(until);
+            if (inputTry != null) {
+                String[] input = inputTry[0].split(",");
+                for (int i = 0; i < input.length; i++) {
+                    input[i] = input[i].trim();
+                }
+                if (inputTry[1].equals("No input")) {
+                    if (until != 0)
+                        currentTime = System.currentTimeMillis() - startTime;
+                    String currentTimeString = currentTime/1000 + " - ";
+                    String output = model.output();
+                    if (output != null) {
+                        if (output.length() > 0)
+                            System.out.println(currentTimeString + model.output());
+                    }
+                    model.internalTransition();
+                } else if (model.validInput(input)) {
+                    if (Double.parseDouble(inputTry[1]) >= until) { // input was given a moment before time ran out, we count this as the same time.
+                        currentTime = System.currentTimeMillis() - startTime;
+                        String currentTimeString = currentTime/1000 + " - ";
+                        String output = model.output();
+                        if (output.length() > 0)
+                            System.out.println(currentTimeString + model.output());
+                        model.confluentTransition(input, currentTime);
+                    } else {
+                        model.externalTransition(input, currentTime);
+                    }
+                } else {
+                    System.out.println("Input invalid -- try again");
+                }            
+            } else {
+                System.out.println("Fatal error."); // I don't know what would ever cause this to happen, but just in case I'll put it in here.
+                System.exit(0);
+            }
+        }
+    }
 
     public boolean isDouble(String s) {
         try {
