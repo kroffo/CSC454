@@ -32,7 +32,7 @@ class NetworkModel : public Model {
   void removeTransitionOnQueue(Model* m);
   Model* getTransitioningModels(); // Return an array
   int numberOfCurrentEvents();
-  bool eventsDoNotContainModel(Event events[], Model* m, int numberOfEvents);
+  bool transitionsDoNotContainModel(Event events[], Model* m, int numberOfEvents);
   bool validInputForModel(Model* m, string inputs []);
   
   

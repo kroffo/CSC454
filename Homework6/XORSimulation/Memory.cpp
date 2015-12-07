@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <sstream>
 #include "Model.h"
 #include "Memory.h"
 using namespace std;
@@ -10,11 +11,13 @@ Memory::Memory(int v1, int v2) {
 }
 
 string Memory::output() {
-  return to_string(value2);
+  ostringstream strs;
+  strs << value2;
+  return strs.str();
 }
 
 double Memory::timeAdvance() {
-  return 1; //Never transitions unless it takes input.
+  return 1;
 }
 
 void Memory::externalTransition(string inputs[], double timeOfInput) {

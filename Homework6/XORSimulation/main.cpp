@@ -8,42 +8,32 @@
 using namespace std;
 
 int main() {
-  Model* x1 = new XOR(0,0,"x2");
-  Model* x2 = new XOR(0,0,"x1");
+  Model* x1 = new XOR(0,0);
+  Model* x2 = new XOR(0,0);
   Model* memory = new Memory(0,0);
-  NetworkModel* inner = new NetworkModel(2,3);
-  NetworkModel* outer = new NetworkModel(2,2);
-  inner->addModel(x1);
-  inner->addModel(x2);
-  outer->addModel(memory);
-  outer->addModel(inner);
+  NetworkModel* nm = new NetworkModel(3,2);
+  nm->addModel(x1);
+  nm->addModel(x2);
+  nm->addModel(memory);
   
   int* inputs = new int[2];
-  inputs[0] = -2;
-  inputs[1] = -3;
-  inner->setInput(x1,inputs,2);
+  inputs[0] = -1;
+  inputs[1] = -2;
+  nm->setInput(x1,inputs,2);
 
-  inputs[0] = inner->getIndex(x1);
-  inputs[1] = -1;
-  inner->setInput(x2,inputs,2);
-  delete inputs;
+  inputs[0] = nm->getIndex(x1);
+  inputs[1] = nm->getIndex(memory);
+  nm->setInput(x2,inputs,2);
+  delete [] inputs;
   
   int* inputs2 = new int[1];
-  inputs2[0] = outer->getIndex(inner);
-  outer->setInput(memory,inputs2,1);
-  delete inputs2;
-
-  int* inputs3 = new int[3];
-  inputs3[0] = -1;
-  inputs3[1] = -2;
-  inputs3[2] = outer->getIndex(memory);
-  outer->setInput(inner,inputs3,3);
-  delete inputs3;
+  inputs2[0] = nm->getIndex(x2);
+  nm->setInput(memory,inputs2,1);
+  delete [] inputs2;
   
-  inner->addOutputModel(x2);
-  outer->addOutputModel(inner);
+  nm->addOutputModel(x2);
 
-  int numberOfInputs = 6;
+  int numberOfInputs = 50;
   string **input;
   double times[numberOfInputs];
   input = new string *[numberOfInputs];
@@ -54,7 +44,15 @@ int main() {
     times[i] = i + 1;
   }
   
-  Framework* framework = new Framework(outer);
-  framework->run(input, times, 2, 2);
-  
+  Framework* framework = new Framework(nm);
+  framework->run(input, times, numberOfInputs, 2);
+  for (int i = 0; i < numberOfInputs; i++) {
+    delete [] input[i];
+  }
+  delete [] input;
+  delete framework;
+  delete x1;
+  delete x2;
+  delete memory;
+  delete nm;
 }

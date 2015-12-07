@@ -3,11 +3,10 @@
 #include "XOR.h"
 using namespace std;
 
-XOR::XOR(int v1, int v2, string a) {
+XOR::XOR(int v1, int v2) {
   value1 = v1;
   value2 = v2;
   firstTaken = false;
-  label = a;
 }
 
 string XOR::output() {
@@ -24,28 +23,21 @@ bool XOR::xOR(bool a, bool b) {
 }
 
 void XOR::externalTransition(string inputs [], double timeOfInput) {
-  value1 = stoi(inputs[0]);
-  value2 = stoi(inputs[1]);
+    value1 = stoi(inputs[0]);
+    value2 = stoi(inputs[1]);
+    firstTaken = false;
+    //    delete [] inputs;
 }
 
 void XOR::internalTransition() {
-  cout << "internal" << endl;
   //Do nothing
 }
 
 void XOR::confluentTransition(string inputs [], double timeOfInput) {
-  if (sizeof(inputs)/sizeof(*inputs) < 2) {
-    if (firstTaken) {
-      value2 = stoi(inputs[0]);
-      firstTaken = false;
-    } else {
-      value1 = stoi(inputs[0]);
-      firstTaken = true;
-    }
-  } else {
     value1 = stoi(inputs[0]);
     value2 = stoi(inputs[1]);
-  }
+    firstTaken = false;
+    //    delete [] inputs;
 }
 
 double XOR::timeAdvance() {

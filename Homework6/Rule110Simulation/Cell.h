@@ -1,23 +1,22 @@
 #include <iostream>
-#ifndef xor_included
-#define xor_included
+#ifndef Cell_included
+#define Cell_included
 #include "Model.h"
 using namespace std;
 
-class XOR : public Model {
+class Cell : public Model {
  private:
-  int value1;
-  int value2;
-  bool firstTaken;
-  bool xOR(bool a, bool b);
+  string state;
+  string label;
   
  public:
-  XOR(int v1, int v2);
+  Cell(string s, string l);
   void externalTransition(string inputs [], double timeOfInput);
   void internalTransition();
   void confluentTransition(string inputs [], double timeOfInput);
   double timeAdvance();
   string output();
+  string getLabel();
 };
 
 #endif

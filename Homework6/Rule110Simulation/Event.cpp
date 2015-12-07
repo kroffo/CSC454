@@ -14,7 +14,7 @@ Event::Event(Model* m, double t, int dt, string tp) {
   this->type = tp;
 }
 
-Event::Event(Model* m, double t, int dt, string tp, string* i, int nInputs) {
+Event::Event(Model* m, double t, int dt, string tp, string i[], int nInputs) {
   this->model = m;
   this->time = t;
   this->discreteTime = dt;
@@ -24,7 +24,7 @@ Event::Event(Model* m, double t, int dt, string tp, string* i, int nInputs) {
 }
 
 Event::~Event() {
-  //delete []  input;
+  // delete [] input;
 }
 
 double Event::getTime() {

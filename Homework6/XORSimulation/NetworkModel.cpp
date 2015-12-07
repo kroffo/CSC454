@@ -28,14 +28,20 @@ NetworkModel::NetworkModel(int numModels, int numInputs):Model() {
 }
 
 NetworkModel::~NetworkModel() {
+  while (pqueue->size() > 0) {
+    Event e = pqueue->top();
+    if (e.getType().compare("input") == 0)
+      delete [] e.getInput();
+    pqueue->pop();
+  }
   delete pqueue;
-  delete models;
-  delete outputIndex;
-  delete numberOfInputsForModel;
-  // for (int i = 0; i < this->numberOfModels; i++) {
-  //   delete inputs[i];
-  // }
-  delete inputs;
+  delete [] models;
+  delete [] outputIndex;
+  delete [] numberOfInputsForModel;
+   for (int i = 0; i < this->numberOfModels; i++) {
+     delete [] inputs[i];
+   }
+  delete [] inputs;
 }
 
 bool NetworkModel::addModel(Model* m) {
@@ -108,24 +114,30 @@ bool NetworkModel::isOutputModel(Model* m) {
 string NetworkModel::output() {
   int currentlyTransitioning = numberOfCurrentEvents();
   string output = "";
-  priority_queue<Event, vector<Event>, compareEvents>* pqueue2 = new priority_queue<Event, vector<Event>, compareEvents>();
-  for (int i = 0; i < currentlyTransitioning; i++) {
-    Event e = pqueue->top();
-    pqueue->pop();
-    pqueue2->push(e);
-    if (e.getType().compare("internal") == 0) {
-      Model* m = e.getModel();
-      if (outputIndex[getIndex(m)]){
-        output.append(m->output() + " ");
+  for (int k = 0; k < numberOfModels; k++) {
+    priority_queue<Event, vector<Event>, compareEvents>* pqueue2 = new priority_queue<Event, vector<Event>, compareEvents>();
+    if (outputIndex[k]) {
+      for (int i = 0; i < currentlyTransitioning; i++) {
+	Event e = pqueue->top();
+	pqueue->pop();
+	pqueue2->push(e);
+	if (e.getType().compare("internal") == 0) {
+	  Model* m = e.getModel();
+	  if (getIndex(m) == k) {
+	    output.append(m->output() + " ");
+	    break;
+	  }
+	}
+      }
+      int size = pqueue2->size();
+      for (int i = 0; i < size; i++) {
+	Event e = pqueue2->top();
+	pqueue2->pop();
+	pqueue->push(e);
       }
     }
+    delete pqueue2;
   }
-  for (int i = 0; i < currentlyTransitioning; i++) {
-    Event e = pqueue2->top();
-    pqueue2->pop();
-    pqueue->push(e);
-  }
-  delete pqueue2;
   if (output.compare("") == 0) return "NULLSTRING";
   return output;
 }
@@ -144,7 +156,7 @@ void NetworkModel::removeTransitionOnQueue(Model* m) {
   for (int i = 0; i < numEvents; i++) {
     Event e = pqueue->top();
     pqueue->pop();
-    if (e.getModel() != m) {
+    if ((e.getModel() != m) || (e.getType().compare("internal") != 0)) {
       pqueue2->push(e);
     }
   }
@@ -152,6 +164,7 @@ void NetworkModel::removeTransitionOnQueue(Model* m) {
   for (int i = 0; i < numEvents; i++) {
     Event e = pqueue2->top();
     pqueue->push(e);
+    pqueue2->pop();
   }
   delete pqueue2;
 }
@@ -160,24 +173,23 @@ void NetworkModel::externalTransition(string networkInputs [], double timeInput)
   for (int i = 0; i < this->numberOfModels; i++) {
     string input[100000]; //an input token of over 100,000 inputs will break this.
     int index = 0;
-    bool inputFound = false;
     for (int j = 0; j < this->numberOfInputsForModel[i]; j++) {
       if (inputs[i][j] < 0) {
         string thisInput = networkInputs[(-1*inputs[i][j])-1];
         istringstream buf(thisInput);
         istream_iterator<string> beg(buf), end;
         vector<string> tokens(beg,end);
-        for (auto& s: tokens) {
-          input[index++] = s;
+	int size = tokens.size();
+        for (int s = 0; s < size; s++) {
+          input[index++] = tokens[s];
         }
-        inputFound = true;
       }
     }
-    string inputs[index];
-    for (int j = 0; j < index; j++) {
-      inputs[j] = input[j];
-    }
     if (index > 0) {
+      string* inputs = new string[index];
+      for (int j = 0; j < index; j++) {
+	inputs[j] = input[j];
+      }
       Event* e = new Event(this->models[i], timeInput, 0, "input", inputs, index);
       pqueue->push(*e);
       delete e;
@@ -210,27 +222,28 @@ int NetworkModel::numberOfCurrentEvents() {
     pqueue->push(e);
     pqueue2->pop();
   }
+  delete pqueue2;
   return count;
 }
 
 void NetworkModel::internalTransition() {
-  cout << "internal called." << endl; 
   int currentCount = this->numberOfCurrentEvents();
   Event* events = new Event[currentCount];
-  for (int i = 0; i < currentCount; i++) {;
+  for (int i = 0; i < currentCount; i++) {
     Event e = pqueue->top();
     events[i] = e;
     pqueue->pop();
   }
   string outputs[currentCount];
   for (int i = 0; i < currentCount; i++) {
-    outputs[i] = events[i].getModel()->output();
+    if (events[i].getType().compare("internal") == 0) {
+      outputs[i] = events[i].getModel()->output();
+    } 
   }
   for (int k = 0; k < currentCount; k++) {
     Event event = events[k];
     double time = event.getTime();
     Model* model = event.getModel();
-    cout << "Processing event " << k << " " << event.getType() << endl;
     
     if (event.getType().compare("internal") == 0) {
       int count = 0;
@@ -245,23 +258,23 @@ void NetworkModel::internalTransition() {
       count = 0;
       for (int i = 0; i < currentCount; i++) {
         for (int j = 0; j < numberOfInputsForModel[getIndex(model)]; j++) {
-          if (getIndex(events[i].getModel()) == inputs[getIndex(model)][j]) {
+          if (getIndex(events[i].getModel()) == inputs[getIndex(model)][j] && events[i].getType().compare("internal") == 0) {
             inputFromModels[count++] = outputs[i];
           }
         }
       }
-      string inputFromEvents[10000];
+      string inputFromEvents[numberOfInputsForModel[getIndex(model)]];
       int count2 = 0;
       for (int i = 0; i < currentCount; i++) {
         if (events[i].getModel() == event.getModel() && events[i].getType().compare("input") == 0) {
           int nInputs = events[i].getNumberOfInputs();
-          string* inputsFromEvent = events[i].getInput();
+          string* eventInput = events[i].getInput();
           for (int j = 0; j < nInputs; j++) {
-            inputFromEvents[count2++] = inputsFromEvent[j];
+            inputFromEvents[count2++] = eventInput[j];
           }
         }
       }
-      if (count + count2 > 0) { 
+      if (count + count2 > 0) {
         string input[count + count2];
         for (int i = 0; i < count; i++) {
           input[i] = inputFromModels[i];
@@ -275,14 +288,15 @@ void NetworkModel::internalTransition() {
       }
 
       for (int i = 0; i < numberOfModels; i++) {
-        if (eventsDoNotContainModel(events,models[i],currentCount)) {
+        if (transitionsDoNotContainModel(events,models[i],currentCount)) {
           for (int j = 0; j < numberOfInputsForModel[i]; j++) {
             if (inputs[i][j] == getIndex(model)) {
               string* outputHere = new string[1];
               outputHere[0] = outputs[k];
               Event* newEvent = new Event(models[i], time, event.getDiscreteTime() + 1, "input", outputHere, 1);
               pqueue->push(*newEvent);
-              delete newEvent;
+	      delete newEvent;
+	      //	      delete [] outputHere;
             }
           }
         }
@@ -293,19 +307,13 @@ void NetworkModel::internalTransition() {
       if (time3 > -1) {
         Event* newEvent = new Event(model, time + time3, 0, "internal");
         pqueue->push(*newEvent);
-        delete newEvent;
+	delete newEvent;
       }
     } else if (event.getType().compare("input") == 0) {
-      bool transitioning = false;
-      for (int i = 0; i < currentCount; i++) {
-        if (events[i].getModel() == model && events[i].getType().compare("internal") == 0) {
-          transitioning = true;
-        }
-      }
-      if (!transitioning) {
-        string* inputs = event.getInput();
+      string* inputs = event.getInput();
+      if (transitionsDoNotContainModel(events, event.getModel(), currentCount)) {
         model->externalTransition(inputs, time);
-        removeTransitionOnQueue(model);
+	removeTransitionOnQueue(model);
         double time2 = model->timeAdvance();
         if (time2 > -1) {
           Event* newEvent = new Event(model, time + time2, 0, "internal");
@@ -313,15 +321,16 @@ void NetworkModel::internalTransition() {
           delete newEvent;
         }
       }
+      delete [] inputs;
     }
   }
   delete [] events;
 }
 
-bool NetworkModel::eventsDoNotContainModel(Event events[], Model* m, int numberOfEvents) {
+bool NetworkModel::transitionsDoNotContainModel(Event events[], Model* m, int numberOfEvents) {
   for (int i = 0; i < numberOfEvents; i++) {
     Model* model = events[i].getModel();
-    if (model == m) {
+    if (model == m && events[i].getType().compare("internal") == 0) {
       return false;
     }
   }
@@ -329,7 +338,6 @@ bool NetworkModel::eventsDoNotContainModel(Event events[], Model* m, int numberO
 }
 
 void NetworkModel::confluentTransition(string networkInputs [], double timeOfInput) {
-  Event e = pqueue->top();
   this->externalTransition(networkInputs, timeOfInput);
   this->internalTransition();
 }
