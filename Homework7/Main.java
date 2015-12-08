@@ -29,10 +29,10 @@ public class Main {
                 command = sc.nextLine();
                 double d = Double.parseDouble(command);
                 times[0] = d;
+                framework.run(inputs, times);
             } catch (NumberFormatException e) {
                 System.out.println("Invalid input.");
             }
-            framework.run(inputs, times);
         } while (!command.equalsIgnoreCase("quit"));
     }
 }

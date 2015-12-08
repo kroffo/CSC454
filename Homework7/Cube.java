@@ -5,6 +5,13 @@ public class Cube implements Model {
     private Sticker[] stickers = new Sticker[54];
     static final HashSet<String> turns = new HashSet<String>();
     boolean outputToDo = true;
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_RED = "\u001B[31m";
+    public static final String ANSI_GREEN = "\u001B[32m";
+    public static final String ANSI_YELLOW = "\u001B[33m";
+    public static final String ANSI_BLUE = "\u001B[34m";
+    public static final String ANSI_ORANGE = "\u001B[36m";
+    public static final String ANSI_WHITE = "\u001B[37m";
 
     public Cube() {
         turns.add("R");
@@ -14,40 +21,40 @@ public class Cube implements Model {
         turns.add("F");
         turns.add("B");
         for (int i = 12; i < 15; i++) {
-            stickers[i] = new Sticker(i,"B");
+            stickers[i] = new Sticker(i, ANSI_BLUE + "B" + ANSI_RESET);
         }
         for (int i = 21; i < 24; i++) {
-            stickers[i] = new Sticker(i,"B");
+            stickers[i] = new Sticker(i, ANSI_BLUE + "B" + ANSI_RESET);
         }
         for (int i = 30; i < 33; i++) {
-            stickers[i] = new Sticker(i,"B");
+            stickers[i] = new Sticker(i, ANSI_BLUE + "B" + ANSI_RESET);
         }
         for (int i = 36; i < 45; i++) {
-            stickers[i] = new Sticker(i,"W");
+            stickers[i] = new Sticker(i, ANSI_WHITE + "W" + ANSI_RESET);
         }
         for (int i = 45; i < 54; i++) {
-            stickers[i] = new Sticker(i,"G");
+            stickers[i] = new Sticker(i, ANSI_GREEN + "G" + ANSI_RESET);
         }
         for (int i = 15; i < 18; i++) {
-            stickers[i] = new Sticker(i,"R");
+            stickers[i] = new Sticker(i, ANSI_RED + "R" + ANSI_RESET);
         }
         for (int i = 24; i < 27; i++) {
-            stickers[i] = new Sticker(i,"R");
+            stickers[i] = new Sticker(i, ANSI_RED + "R" + ANSI_RESET);
         }
         for (int i = 33; i < 36; i++) {
-            stickers[i] = new Sticker(i,"R");
+            stickers[i] = new Sticker(i, ANSI_RED + "R" + ANSI_RESET);
         }
         for (int i = 0; i < 9; i++) {
-            stickers[i] = new Sticker(i,"Y");
+            stickers[i] = new Sticker(i, ANSI_YELLOW + "Y" + ANSI_RESET);
         }
         for (int i = 9; i < 12; i++) {
-            stickers[i] = new Sticker(i,"O");
+            stickers[i] = new Sticker(i, ANSI_ORANGE + "O" + ANSI_RESET);
         }
         for (int i = 18; i < 21; i++) {
-            stickers[i] = new Sticker(i,"O");
+            stickers[i] = new Sticker(i, ANSI_ORANGE + "O" + ANSI_RESET);
         }
         for (int i = 27; i < 30; i++) {
-            stickers[i] = new Sticker(i,"O");
+            stickers[i] = new Sticker(i, ANSI_ORANGE + "O" + ANSI_RESET);
         }
     }
 
@@ -58,6 +65,10 @@ public class Cube implements Model {
             }
         }
         return true;
+    }
+
+    public boolean validTurn(String t) {
+        return turns.contains(t.toUpperCase());
     }
 
     public String output() {
@@ -100,8 +111,11 @@ public class Cube implements Model {
     }
 
     public void externalTransition(String[] input, double time) {
+        boolean actualInput = false;
         for (int i = 0; i < input.length; i++) {
             for (int j = 0; j < input[i].length(); j++) {
+                if (validTurn(input[i].substring(j,j+1)))
+                    actualInput = true;
                 switch(input[i].substring(j,j+1).toUpperCase()) {
                 case "R": executeTurn("R");
                     break;
@@ -117,7 +131,10 @@ public class Cube implements Model {
                     break;
                 }
             }
-            outputToDo = true;
+            if (actualInput)
+                outputToDo = true;
+            else
+                outputToDo = false;
         }
     }
 
@@ -244,9 +261,9 @@ public class Cube implements Model {
                         break;
                     case 11: stickers[i].changePosition(51);
                         break;
-                    case 9: stickers[i].changePosition(52);
+                    case 10: stickers[i].changePosition(52);
                         break;
-                    case 10: stickers[i].changePosition(53);
+                    case 9: stickers[i].changePosition(53);
                         break;
                     case 51: stickers[i].changePosition(17);
                         break;

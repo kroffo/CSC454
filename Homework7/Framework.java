@@ -4,20 +4,24 @@ import java.io.*;
 public class Framework {
     
     private Model model;
+    private double currentTime;
+    private double untilTime;
 
     public Framework(Model model) {
         this.model = model;
+        currentTime = 0;
+        untilTime = model.timeAdvance();
     }
     
     public void run(String[][] inputs, double[] times) {
-         double untilTime = model.timeAdvance(), currentTime = 0;
+        untilTime = model.timeAdvance();
          for (int i = 0; i < inputs.length; i++) {
              if (inputs.length == times.length) {
                 String[] input = inputs[i];
                 double waitTime = times[i];
                 if (model.validInput(input)) {
-                    if (waitTime > 0) {
-                        while (waitTime > 0) {
+                    if (waitTime >= currentTime) {
+                        while (waitTime >= currentTime) {
                             //System.out.println(untilTime + " " + waitTime);
                             if (untilTime < waitTime && untilTime > 0)  {
                                 //try {
