@@ -57,6 +57,10 @@ public class NetworkModel implements Model {
         for (int i = 0; i < models.length; i++) {
             if (models[i] == null) {
                 models[i] = m;
+                double t = m.timeAdvance();
+                if (t > -1) {
+                    pqueue.add(new QueueElement(m, t, 0, "internal"));
+                }
                 return true;
             }
         }
@@ -122,14 +126,16 @@ public class NetworkModel implements Model {
             if (outputIndex[i]) {
                 for (int j = 0; j < currents.length; j++) {
                     if (currents[j] == models[i]) {
-                        output = output + " " +  models[i].output();
+                        String out = models[i].output();
+                        if (out != null)
+                            output = output + " " + out;
                         break;
                     }
                 }
             }
         }
         if (output.length() > 0)
-            return output.trim();
+            return output;
         return null;
     }
 
@@ -137,7 +143,7 @@ public class NetworkModel implements Model {
     public double timeAdvance() {
         QueueElement q = pqueue.peek();
         if (q == null) {
-            return -1;
+            return Integer.MAX_VALUE;
         }
         return q.getTime();
     }
@@ -244,7 +250,7 @@ public class NetworkModel implements Model {
                             input = input + " " + inputs[j];
                         }
                     }
-                }
+                } // Copy C++ code to combine input events!!!
                 input = input.trim();
                 if (input.length() > 1) {
                     model.confluentTransition(input.split(" "), time);
@@ -267,7 +273,7 @@ public class NetworkModel implements Model {
                 removeTransitionOnQueue(model);
                 double time3 = model.timeAdvance();
                 if (time3 < Integer.MAX_VALUE) {
-                    pqueue.add(new QueueElement(model, time + time3, 0, "internal"));
+                    pqueue.add(new QueueElement(model, time3, 0, "internal"));
                 }
             } else if (event.getType().equals("input")) {
                 boolean transitioning = false;
@@ -280,8 +286,9 @@ public class NetworkModel implements Model {
                     String[] input = event.getInput();
                     model.externalTransition(input, time);
                     double time2 = model.timeAdvance();
+                    removeTransitionOnQueue(model);
                     if (time2 < Integer.MAX_VALUE) {
-                        pqueue.add(new QueueElement(model, time + time2, 0, "internal"));
+                        pqueue.add(new QueueElement(model, time2, 0, "internal"));
                     }
                 }
             }

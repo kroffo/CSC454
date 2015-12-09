@@ -3,6 +3,11 @@ import java.io.*;
 
 public class Framework {
     
+
+    private static final String ANSI_CYAN = "\u001B[36m";
+    private static final String ANSI_RESET = "\u001B[0m";
+    private static final String ANSI_GREEN = "\u001B[32m";
+
     private Model model;
     private double currentTime;
     private double untilTime;
@@ -23,13 +28,13 @@ public class Framework {
                     if (waitTime >= currentTime) {
                         while (waitTime >= currentTime) {
                             //System.out.println(untilTime + " " + waitTime);
-                            if (untilTime < waitTime && untilTime > 0)  {
+                            if (untilTime < waitTime && untilTime >= 0)  {
                                 //try {
                                 //Thread.currentThread().sleep((long)((untilTime - currentTime)*1000));
                                     currentTime = untilTime;
                                     String output = model.output();
                                     if (output != null) 
-                                        System.out.println(currentTime + " - Output: " + output);
+                                        System.out.println(ANSI_GREEN + currentTime + ANSI_CYAN +" - Output: " + ANSI_RESET+ output);
                                     model.internalTransition();
                                     untilTime = model.timeAdvance();
                                     //} catch (InterruptedException e) {}
@@ -37,7 +42,7 @@ public class Framework {
                                 //try {
                                 //Thread.currentThread().sleep((long)((waitTime - currentTime)*1000));
                                     currentTime = waitTime;
-                                    String outString = currentTime + " - Input: ";
+                                    String outString = ANSI_GREEN + currentTime + ANSI_CYAN + " - Input: " + ANSI_RESET;
                                     for (int j = 0; j < input.length; j++) {
                                         outString = outString + input[j] + " ";
                                     }
@@ -52,11 +57,11 @@ public class Framework {
                                 //try {
                                 //Thread.currentThread().sleep((long)((waitTime - currentTime)*1000));
                                     currentTime = waitTime;
-                                    String outString = currentTime + "";
+                                    String outString = ANSI_GREEN + currentTime + "";
                                     String output = model.output();
                                     if (output != null) 
-                                        outString = outString + " - Output: " + output;
-                                    outString = outString + " - Input: ";
+                                        outString = outString + ANSI_CYAN + " - Output: " + ANSI_RESET + output;
+                                    outString = outString + ANSI_CYAN + " - Input: " + ANSI_RESET;
                                     for (int j = 0; j < input.length; j++) {
                                         outString = outString + input[j] + " ";
                                     }
@@ -65,6 +70,13 @@ public class Framework {
                                     waitTime = -1;
                                     untilTime = model.timeAdvance();
                                     //} catch (InterruptedException e) {}
+                                    while (untilTime == currentTime) {
+                                        output = model.output();
+                                        if (output != null) 
+                                            System.out.println(ANSI_GREEN + currentTime + ANSI_CYAN +" - Output: " + ANSI_RESET+ output);
+                                        model.internalTransition();
+                                        untilTime = model.timeAdvance();
+                                    }
                             }
                         }
                     } else {

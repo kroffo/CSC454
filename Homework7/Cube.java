@@ -5,13 +5,13 @@ public class Cube implements Model {
     private Sticker[] stickers = new Sticker[54];
     static final HashSet<String> turns = new HashSet<String>();
     boolean outputToDo = true;
-    public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_RED = "\u001B[31m";
-    public static final String ANSI_GREEN = "\u001B[32m";
-    public static final String ANSI_YELLOW = "\u001B[33m";
-    public static final String ANSI_BLUE = "\u001B[34m";
-    public static final String ANSI_ORANGE = "\u001B[36m";
-    public static final String ANSI_WHITE = "\u001B[37m";
+    private static final String ANSI_RESET = "\u001B[0m";
+    private static final String ANSI_RED = "\u001B[31m";
+    private static final String ANSI_GREEN = "\u001B[32m";
+    private static final String ANSI_YELLOW = "\u001B[33m";
+    private static final String ANSI_BLUE = "\u001B[34m";
+    private static final String ANSI_CYAN = "\u001B[36m";
+    private static final String ANSI_WHITE = "\u001B[37m";
 
     public Cube() {
         turns.add("R");
@@ -48,13 +48,13 @@ public class Cube implements Model {
             stickers[i] = new Sticker(i, ANSI_YELLOW + "Y" + ANSI_RESET);
         }
         for (int i = 9; i < 12; i++) {
-            stickers[i] = new Sticker(i, ANSI_ORANGE + "O" + ANSI_RESET);
+            stickers[i] = new Sticker(i, ANSI_CYAN + "O" + ANSI_RESET);
         }
         for (int i = 18; i < 21; i++) {
-            stickers[i] = new Sticker(i, ANSI_ORANGE + "O" + ANSI_RESET);
+            stickers[i] = new Sticker(i, ANSI_CYAN + "O" + ANSI_RESET);
         }
         for (int i = 27; i < 30; i++) {
-            stickers[i] = new Sticker(i, ANSI_ORANGE + "O" + ANSI_RESET);
+            stickers[i] = new Sticker(i, ANSI_CYAN + "O" + ANSI_RESET);
         }
     }
 
@@ -106,8 +106,9 @@ public class Cube implements Model {
     }
 
     public double timeAdvance() {
-        if (outputToDo) return 0;
-        return -1;
+        if (outputToDo) 
+            return 0.0;
+        return Integer.MAX_VALUE;
     }
 
     public void externalTransition(String[] input, double time) {
