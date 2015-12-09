@@ -62,16 +62,50 @@ public class Village implements Model {
         parseString = inputs[0];
         String[] patterns = parseString.split(":");
         for (int i = 0; i < patterns.length; i++) {
-            if (patterns[i].toUpperCase().equals("STANDARDOFLIVING++")) {
+            if (patterns[i].equals("STANDARDOFLIVING++")) {
                 standardOfLiving += 5;
-            } else if (patterns[i].toUpperCase().equals("STANDARDOFLIVING--")) {
+            } else if (patterns[i].equals("STANDARDOFLIVING--")) {
                 standardOfLiving -= 5;
-            } else if (patterns[i].toUpperCase().equals("HUNTER")) {
+            } else if (patterns[i].equals("HUNTER")) {
                 numberOfHunters++;
-            } else if (patterns[i].toUpperCase().equals("FOOD")) {
+            } else if (patterns[i].equals("FOOD")) {
                 food++;
-            } else if (patterns[i].toUpperCase().equals("RESOURCES")) {
+            } else if (patterns[i].equals("RESOURCES")) {
                 resources++;
+            } else if (patterns[i].equals("NEW")) {
+                switch (patterns[++i]) {
+                case "RESIDENCE":
+                    residences++;
+                    break;
+                case "TOWNCENTER":
+                    townCenter++;
+                    break;
+                case "STORAGEUNIT":
+                    storageUnits++;
+                    break;
+                case "SCHOOL":
+                    schools++;
+                    break;
+                case "CHURCH":
+                    churches++;
+                }
+            } else if (patterns[i].equals("DES")) {
+                switch (patterns[++i]) {
+                case "RESIDENCE":
+                    residences--;
+                    break;
+                case "TOWNCENTER":
+                    townCenter--;
+                    break;
+                case "STORAGEUNIT":
+                    storageUnits--;
+                    break;
+                case "SCHOOL":
+                    schools--;
+                    break;
+                case "CHURCH":
+                    churches--;
+                }
             }
         }
     }
@@ -98,23 +132,18 @@ public class Village implements Model {
                 switch (tokens[++i]) {
                 case "RESIDENCE":
                     building = "Residence";
-                    residences++;
                     break;
                 case "TOWNCENTER":
                     building = "Town Center";
-                    townCenter++;
                     break;
                 case "STORAGEUNIT":
                     building = "Storage Unit";
-                    storageUnits++;
                     break;
                 case "SCHOOL":
                     building = "School";
-                    schools++;
                     break;
                 case "CHURCH":
                     building = "Church";
-                    churches++;
                 }
                 outputString = outputString + "\nConstruction of a new " + building + " has been completed.";
             } else if (token.equals("WKD")) {
@@ -141,23 +170,18 @@ public class Village implements Model {
                 switch (tokens[++i]) {
                 case "RESIDENCE":
                     building = "a Residence";
-                    residences--;
                     break;
                 case "TOWNCENTER":
                     building = "the Town Center";
-                    townCenter--;
                     break;
                 case "STORAGEUNIT":
                     building = "a Storage Unit";
-                    storageUnits--;
                     break;
                 case "SCHOOL":
                     building = "the School";
-                    schools--;
                     break;
                 case "CHURCH":
                     building = "the Church";
-                    churches--;
                 }
                 outputString = outputString + "\nPredators have destroyed " + building + "!\n";
             } else if (token.equals("PREDATORLEFT")) {
@@ -197,7 +221,7 @@ public class Village implements Model {
     }   
 
     public String getBuildings() {
-        String outString = "The village contains:\n\n";
+        String outString = "\nThe village contains:\n\n";
         outString = outString + "\t" + townCenter + " Town Center\n";
         outString = outString + "\t" + residences + " Residence";
         if (residences > 1) outString = outString + "s";

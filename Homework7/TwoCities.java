@@ -1,6 +1,6 @@
 import java.util.Scanner;
 
-public class Main {
+public class TwoCities {
     public static void main(String[] args) {
         
         int numberOfInitialHunters = 5;
@@ -107,7 +107,6 @@ public class Main {
         network.addOutputModel(villageNetwork2);
         network.addOutputModel(villageNetwork);
 
-        networkInputs = 1;
         Framework framework = new Framework(network);
         String command = "";
         Scanner sc = new Scanner(System.in);

@@ -118,7 +118,6 @@ public class Builder implements Model {
      * Resources taken throughout the day will still show up here.
      */
     public String output() { // This one should be a doosie.
-        System.out.println("output called");
         String outputString = "";
         if (newBuilding.length() > 0) {
             outputString = outputString + "NEW:" + newBuilding + ":";
@@ -137,15 +136,16 @@ public class Builder implements Model {
             outputString = outputString + "NATK:";
         }
         if (standardOfLivingChange > 0) {
-            while (standardOfLivingChange > 0) {
+            int change = standardOfLivingChange;
+            while (change > 0) {
                 outputString = outputString + "STANDARDOFLIVING++:";
-                standardOfLivingChange -= 5;
+                change -= 5;
             }
-        }
-        if (standardOfLivingChange < 0) {
-            while (standardOfLivingChange < 0) {
+        } else if (standardOfLivingChange < 0) {
+            int change = standardOfLivingChange;
+            while (change < 0) {
                 outputString = outputString + "STANDARDOFLIVING--:";
-                standardOfLivingChange += 5;
+                change += 5;
             }
         }
         for (int i = 0; i < numberOfHunters; i++) {

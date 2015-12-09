@@ -1,6 +1,6 @@
 import java.util.Scanner;
 
-public class Main {
+public class CubeAndVillage {
     public static void main(String[] args) {
         
         int numberOfInitialHunters = 5;
@@ -51,63 +51,23 @@ public class Main {
 
         villageNetwork.addOutputModel(village);
 
-        int numberOfInitialHunters2 = 5;
-        int numberOfModels2 = 5;
-        int numberOfInputs2 = 1;
-        Village village2 = new Village("Kennyville2");
-        Builder builder2 = new Builder(numberOfInitialHunters2);
-        Farmer farmer2 = new Farmer();
-        Gatherer gatherer = new Gatherer();
-        HunterGroup hunters2 = new HunterGroup(numberOfInitialHunters2);
-        NetworkModel villageNetwork2 = new NetworkModel(numberOfModels2,numberOfInputs2);
-        villageNetwork2.addModel(builder2);
-        villageNetwork2.addModel(farmer2);
-        villageNetwork2.addModel(gatherer);
-        villageNetwork2.addModel(hunters2);
-        villageNetwork2.addModel(village2);
-
-        modelInput = new int[4];
-        modelInput[0] = -1;
-        modelInput[1] = villageNetwork2.getIndex(farmer2);
-        modelInput[2] = villageNetwork2.getIndex(gatherer);
-        modelInput[3] = villageNetwork2.getIndex(hunters2);
-        villageNetwork2.setInput(builder2,modelInput);
-
-        modelInput = new int[3];
-        modelInput[0] = -1;
-        modelInput[1] = villageNetwork2.getIndex(builder2);
-        modelInput[2] = villageNetwork2.getIndex(hunters2);
-        villageNetwork2.setInput(farmer2,modelInput);
-        villageNetwork2.setInput(gatherer,modelInput);
-
-        modelInput = new int[2];
-        modelInput[0] = -1;
-        modelInput[1] = villageNetwork2.getIndex(builder2);
-        villageNetwork2.setInput(hunters2,modelInput);
-
-        modelInput = new int[1];
-        modelInput[0] = villageNetwork2.getIndex(builder2);
-        villageNetwork2.setInput(village2,modelInput);
-
-        villageNetwork2.addOutputModel(village2);
-
+        Cube cube = new Cube();
 
         int networkInputs = 2;
         int networkModels = 2;
         NetworkModel network = new NetworkModel(networkModels,networkInputs);
         network.addModel(villageNetwork);
-        network.addModel(villageNetwork2);
+        network.addModel(cube);
 
         modelInput[0] = -1;
         network.setInput(villageNetwork,modelInput);
 
         modelInput[0] = -2;
-        network.setInput(villageNetwork2,modelInput);
+        network.setInput(cube,modelInput);
 
-        network.addOutputModel(villageNetwork2);
+        network.addOutputModel(cube);
         network.addOutputModel(villageNetwork);
 
-        networkInputs = 1;
         Framework framework = new Framework(network);
         String command = "";
         Scanner sc = new Scanner(System.in);
